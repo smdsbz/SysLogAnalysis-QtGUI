@@ -1,0 +1,51 @@
+#include <iostream>
+using std::cout; using std::cin; using std::endl;
+
+#include <string>
+using std::string;
+
+#include <stdexcept>
+#include <new>
+
+#include "./HashTable.h"
+
+
+/****** Test ******/
+
+int main(int argc, const char *argv[]) {
+  string sample = ("Jan  8 12:07:06 zhuxiaoguangs-MacBook-Air com.apple.x"
+      "pc.launchd[1] (com.apple.preference.displays.MirrorDisplays): Service "
+      "only ran for 0 seconds. Pushing respawn out by 10 seconds.");
+
+  cout << "==== HashCell<LogMessage> ====" << endl;
+  cout << "- - - - Testing init method - - - -" << endl;
+  auto phcell = new HashCell<LogMessage>(sample);
+  cout << "phcell->data  ==> " << phcell->data.message << endl;
+  cout << "phcell->entry ==> (date) " << phcell->entry->get_date() << endl;
+  // try {
+  //   cout << "- - - - Trying dirty deletion - - - -" << endl;
+  //   delete phcell;
+  // } catch (const std::runtime_error &e) {
+  //   std::cerr << "Caught ERROR!" << endl;
+  //   cout << e.what() << endl;
+  //   cout << "continue..." << "\n";
+  // } catch (...) { std::cerr << "Default catch" << endl; }
+  cout << "- - - - Trying legal deletion - - - -" << endl;
+  delete phcell->entry; phcell->entry = nullptr;
+  delete phcell;
+  cout << "Test OK!" << endl;
+
+  cout << endl;
+  cout << "==== HashCell<string> ====" << endl;
+  cout << "- - - - Testing init method - - - -" << endl;
+  auto sender_cell = new HashCell<string>(sample, true);
+  cout << "sender_cell->data ==> " << sender_cell->data << '\n';
+  cout << "Do I have to set `entry` afterwards? ";
+  if (sender_cell->entry == nullptr) { cout << "True!" << '\n'; }
+  else { cout << "Something's WRONG!" << '\n'; }
+  delete sender_cell;
+  cout << "Test Done!" << endl;
+
+  return 0;
+}
+
