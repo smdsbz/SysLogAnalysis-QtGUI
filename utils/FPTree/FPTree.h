@@ -22,8 +22,7 @@ using std::vector;
 class FPTree {
 public:
 
-  class _Node
-  {
+  class _Node {
   public:
     _HashCell_LogMessage *entity = nullptr;
     size_t  occur  = 0;
@@ -33,8 +32,7 @@ public:
 
   public:
 
-    explicit _Node(_HashCell_LogMessage *p)
-    {
+    explicit _Node(_HashCell_LogMessage *p) {
       if (p == nullptr) {
         throw std::runtime_error("FPTree::_Node() Empty node!");
       }
@@ -44,8 +42,7 @@ public:
 
     inline _Node &operator++() { this->occur += 1; return *this; }
 
-    _Node *in_brothers(_HashCell_LogMessage *p)
-    {
+    _Node *in_brothers(_HashCell_LogMessage *p) {
       _Node *pnode = this;
       for (; pnode != nullptr; pnode = pnode->brother) {
         if (pnode->entity == p) { break; }
@@ -53,13 +50,11 @@ public:
       return pnode; // NOTE: Including returning `nullptr`
     }
 
-    _Node *in_children(_HashCell_LogMessage *p)
-    {
+    _Node *in_children(_HashCell_LogMessage *p) {
       return this->child->in_brothers(p);
     }
 
-    _Node *last_brother()
-    {
+    _Node *last_brother() {
       _Node *pnode = this;
       for (; pnode->brother != nullptr; pnode = pnode->brother) { ; }
       return pnode;
@@ -67,8 +62,7 @@ public:
 
   };
 
-  class _Header
-  {
+  class _Header {
   public:
     _HashCell_LogMessage *entity = nullptr;
     size_t  freq   = 0;
@@ -76,8 +70,7 @@ public:
 
   public:
 
-    _Header(_HashCell_LogMessage *p, size_t f)
-    {
+    _Header(_HashCell_LogMessage *p, size_t f) {
       if (p == nullptr) {
         throw std::runtime_error("FPTree::_Header() Empty header!");
       }
@@ -86,20 +79,17 @@ public:
       return;
     }
 
-    _Header &operator= (const _Header &other)
-    {
+    _Header &operator= (const _Header &other) {
       this->entity = other.entity;
       this->freq   = other.freq;
       return *this;
     }
 
-    inline bool operator==(const _Header &other)
-    {
+    inline bool operator==(const _Header &other) {
       return this->entity == other.entity;
     }
 
-    inline _HashCell_LogMessage *operator->()
-    {
+    inline _HashCell_LogMessage *operator->() {
       if (this->entity == nullptr) {
         throw std::runtime_error("FPTree::_Header::operator-> `entity` field is empty!");
       }
@@ -115,8 +105,7 @@ public:
 
 public:
 
-  explicit FPTree(Storage *s)
-  {
+  explicit FPTree(Storage *s) {
     if (s == nullptr) {
       throw std::invalid_argument("FPTree::FPTree() Accompanied Storage "
           "cannot be null!");
@@ -124,8 +113,7 @@ public:
     this->storage = s;
   }
 
-  ~FPTree()
-  {
+  ~FPTree() {
     vector<_Node *> node_stack;
     auto pnode = this->nodes;
     // get first branch
@@ -147,8 +135,7 @@ public:
     return;
   }
 
-  _Header &operator[](_HashCell_LogMessage *p)
-  {
+  _Header &operator[](_HashCell_LogMessage *p) {
     // check if `p` is in `headers`
     for (auto &each : this->headers) {
       if (each.entity->data == p->data) { return each; }
@@ -156,8 +143,7 @@ public:
     throw std::overflow_error("FPTree::operator[LogMessage] Not found!");
   }
 
-  _Header &_add_header(_HashCell_LogMessage *p, size_t f)
-  {
+  _Header &_add_header(_HashCell_LogMessage *p, size_t f) {
     // first header
     if (this->headers.empty()) {
       this->headers.push_back(_Header(p, f));
@@ -179,8 +165,7 @@ public:
     throw std::runtime_error("FPTree::_add_header() Cannot find insert position");
   }
 
-  FPTree &_first_run(size_t valve_freq=3)
-  {
+  FPTree &_first_run(size_t valve_freq=3) {
     if (this->storage == nullptr) {
       throw std::runtime_error("FPTree::_first_run() Attempting to run "
           "analysis on empty storage!");
@@ -210,8 +195,7 @@ public:
     return *this;
   }
 
-  FPTree &_add_pattern(vector<_Header> pat)
-  {
+  FPTree &_add_pattern(vector<_Header> pat) {
     // HACK: Performance trade-off, more code for less conparison
     if (pat.empty()) { return *this; }  // sent empty pattern
     if (this->nodes == nullptr) {   // first pattern
@@ -279,8 +263,7 @@ public:
     return *this;
   }
 
-  vector<_Header> _sieve_frequent(vector<LogRecord *> context)
-  {
+  vector<_Header> _sieve_frequent(vector<LogRecord *> context) {
     // HACK: Kinda like bucket-sort
     vector<_Header> ret;
     for (auto &each_header : this->headers) {   // for each message,
@@ -296,9 +279,7 @@ public:
     return ret;
   }
 
-  FPTree &_second_run(size_t valve_delay=5)
-  {
-    cout << "Doing second run!" << endl;
+  FPTree &_second_run(size_t valve_delay=5) {
     QProgressDialog progress(/*labelText=*/"Second run:\n"
                                            "Mining frequent patterns...",
                              /*closeButtonText=*/"Stop",
@@ -319,15 +300,13 @@ public:
     return *this;
   }
 
-  FPTree &run(size_t hp_min_freq=3, size_t hp_max_delay=5)
-  {
+  FPTree &run(size_t hp_min_freq=3, size_t hp_max_delay=5) {
     this->_first_run(hp_min_freq);
     this->_second_run(hp_max_delay);
     return *this;
   }
 
-  vector<_Node *> &show_pattern(vector<_Node *> &pat)
-  {
+  vector<_Node *> &show_pattern(vector<_Node *> &pat) {
     if (pat.size() == 0) {
       cout << "Empty pattern!" << endl;
     } else {
@@ -341,8 +320,7 @@ public:
     return pat;
   }
 
-  FPTree &show_result(size_t valve_freq=5)
-  {
+  FPTree &show_result(size_t valve_freq=5) {
     vector<_Node *> node_stack;
     auto pnode = this->nodes;
     if (pnode == nullptr) {
