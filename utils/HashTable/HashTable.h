@@ -33,9 +33,9 @@ public:
     }
     this->space = table_size;
     this->table = new _HashCell_LogMessage[this->space];
-    this->hash = HashFunc(30, this->space, 0);
+    this->hash  = HashFunc(30, this->space, 0);
     this->global_begin = nullptr;
-    this->global_end = nullptr;
+    this->global_end   = nullptr;
     return;
   }
 
@@ -120,8 +120,13 @@ public:
   }
 
   _HashCell_LogMessage &operator[](const LogMessage &msgobj) {
+    // NOTE: `msgobj` should be guaranteed to be in `Storage` already!
     auto pcell = this->table + hash( msgobj.get_message() );
-    while ( pcell && (pcell->strict_equal(msgobj) == false) ) {
+    if (!pcell->occupied()) {
+      throw std::overflow_error(string("MessageTable::operator[LogMessage] "
+          "No match found for: ") + msgobj.get_message());
+    }
+    while ( pcell && !pcell->strict_equal(msgobj) ) {
       pcell = pcell->next;
     }
     if (pcell == nullptr) {
@@ -133,40 +138,48 @@ public:
   }
 
   // TODO: Fails when containing cr/lf
-  /* _HashCell_LogMessage &operator[](const LogMessage *pmsg) { */
-  /*   auto pcell = this->table + hash(pmsg->get_message()); */
-  /*   while (pcell && !(&pcell->data == pmsg)) { */
-  /*     pcell = pcell->next; */
-  /*   } */
-  /*   if (pcell == nullptr) { */
-  /*     throw std::overflow_error(string("MessageTable::operator[LogMessage *] " */
-  /*         "No match found for: ") + pmsg->get_message()); */
-  /*   } */
-  /*   return *pcell; */
-  /* } */
+  // TODO: Figure out why this works in Qt-GUI
+  // _HashCell_LogMessage &operator[](const LogMessage *pmsg) {
+  //   auto pcell = this->table + hash(pmsg->get_message());
+  //   if (!pcell->occupied()) {
+  //     throw std::overflow_error(string("MessageTable::operator[LogMessage *] "
+  //         "No match found for: ") + pmsg->get_message());
+  //   }
+  //   while (pcell && !(&pcell->data == pmsg)) {
+  //     pcell = pcell->next;
+  //   }
+  //   if (pcell == nullptr) {
+  //     throw std::overflow_error(string("MessageTable::operator[LogMessage *] "
+  //         "No match found for: ") + pmsg->get_message());
+  //   }
+  //   return *pcell;
+  // }
 
-  // HACK: Current work-around for the problem stated above
+  /*
+  HACK: Current work-around for the problem stated above
   _HashCell_LogMessage &operator[](const LogMessage *pmsg) {
     auto pcell = this->table;
     for (size_t idx = 0, range = this->space; idx != range; ++idx) {
       pcell = this->table + idx;
-      while (pcell) {
-        if (&pcell->data == pmsg) { return *pcell; }
+      while (pcell->occupied() && pcell && (&pcell->data != pmsg) ) {
         pcell = pcell->next;
       }
     }
-    throw std::overflow_error(string("MessageTable::operator[LogMessage *] "
-        "No match found for: ") + pmsg->get_message());
+    if (pcell == nullptr) {
+      throw std::overflow_error(string("MessageTable::operator[LogMessage *] "
+          "No match found for: ") + pmsg->get_message());
+    }
+    return *pcell;
   }
+  */
 
   _HashCell_LogMessage &operator[](const string &msg) {
     auto pcell = this->table + hash(msg);
-    if (pcell->occupied() == false) {
-      cout << "empty hash!" << endl;
+    if (!pcell->occupied()) {
       throw std::overflow_error(string("MessageTable::operator[string] ")
           + "No match found for: " + msg);
     }
-    while ( pcell && (pcell->value_equal(msg) == false) ) {
+    while ( pcell && !pcell->value_equal(msg) ) {
       pcell = pcell->next;
     }
     if (pcell == nullptr) {
@@ -207,7 +220,7 @@ public:
     }
     this->space = table_size;
     this->table = new _HashCell_string[this->space];
-    this->hash = HashFunc(10, this->space, 0);
+    this->hash  = HashFunc(10, this->space, 0);
     return;
   }
 
@@ -219,7 +232,6 @@ public:
    * 返回值：  对应该 LogRecord 的发送者在 SenderTable 中的存储位置
    */
   _HashCell_string &link(LogRecord &rec) {
-    // NOTE: Manually `join_rec_to_end()` required!
     // make sure the message field is not empty
     if (rec.message == nullptr) {
       throw std::runtime_error("SenderTable::link() Invalid `massage` field!");
@@ -235,14 +247,12 @@ public:
     auto &sndr_cell = this->table[idx];
     if (sndr_cell.occupied()) {
       if (sndr_cell == sender_name) {   // search chain head
-        /* sndr_cell.join_rec_to_end(&rec); */
         return sndr_cell;
       } // not chain head, continue searching
       auto pcell = &sndr_cell;
       while (pcell->next != nullptr) {
         if (*(pcell->next) == sender_name) {    // sender found
           // no need for new cell
-          /* pcell->next->join_rec_to_end(&rec); */
           return *(pcell->next);
         }
         // sender not found *YET*, venture forth
@@ -257,11 +267,9 @@ public:
         throw e;
       }
       pcell->next->reset_cell(sender_name);
-      /* pcell->next->join_rec_to_end(&rec); */
       return *(pcell->next);
     } else {    // not occupied
       sndr_cell.reset_cell(sender_name);
-      /* sndr_cell.join_rec_to_end(&rec); */
       return sndr_cell;
     }
     throw std::logic_error("SenderTable::link() Jumped out of if-else!");
@@ -269,6 +277,10 @@ public:
 
   _HashCell_string &operator[](const string &sender) {
     auto pcell = this->table + hash(sender);
+    if (!pcell->occupied()) {
+      throw std::overflow_error(string("SenderTable::operator[sender] ")
+          + "No match found for: " + sender);
+    }
     while (pcell && (pcell->data != sender)) { pcell = pcell->next; }
     if (pcell == nullptr) {
       throw std::overflow_error(string("SenderTable::operator[sender] ")

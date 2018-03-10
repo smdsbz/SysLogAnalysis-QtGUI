@@ -140,9 +140,9 @@ public:
     // Set sender axis successor
     if (this->entry == nullptr) {   // first record ever
       this->entry = prec;
-      this->end = prec;
+    } else {
+      this->end->sender_suc = prec;
     }
-    this->end->sender_suc = prec;
     this->end = prec;
     return *this;
   }

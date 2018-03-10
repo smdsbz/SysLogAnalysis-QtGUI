@@ -214,8 +214,7 @@ void MainWindow::on_actionDelete_selected_record_triggered()
   if (this->cursor == nullptr) {
     QMessageBox toast_box;
     toast_box.setText("Failed while deleting record!");
-    toast_box.setDetailedText("Click on the record you want to delete "
-                              "before deletion!");
+    toast_box.setDetailedText("Click on the record you want to delete first!");
     toast_box.exec();
     return;
   }
@@ -239,13 +238,12 @@ void MainWindow::on_actionAdd_record_after_selection_triggered()
   if (this->cursor == nullptr) {
     QMessageBox toast_box;
     toast_box.setText("Failed while inserting record!");
-    toast_box.setDetailedText("Click on the record you want to insert after "
-                              "before insertion!");
+    toast_box.setDetailedText("Click on the record you want to insert after first!");
     toast_box.exec();
     return;
   }
   auto dialog = new CreateLogRecordDialog(this);
-  dialog->show();
+  dialog->exec();
   _render_recordDisplayArea();
 }
 

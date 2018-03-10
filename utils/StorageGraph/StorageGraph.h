@@ -37,15 +37,13 @@ public:
 public:
 
   inline Storage(size_t msgtable_size = 5000,
-                 size_t sdrtable_size = 200)
-  {
+                 size_t sdrtable_size = 200) {
     messages = new MessageTable(msgtable_size);
     senders  = new SenderTable(sdrtable_size);
     return;
   }
 
-  ~Storage()
-  {
+  ~Storage() {
     // NOTE: Only have to clean `LogRecord`s, `Cell`s will be handled by
     //       `Table`s
     LogRecord *beg = this->messages->global_begin;
@@ -58,8 +56,7 @@ public:
     return;
   }
 
-  LogRecord &_time_sequence_promised_add(const string &log)
-  {
+  LogRecord &_time_sequence_promised_add(const string &log) {
     // prepare `LogMessage` content
     auto msg = LogMessage();
     try {
@@ -97,8 +94,7 @@ public:
     return *prec;
   }
 
-  size_t is_repeat(const string &line)
-  {
+  size_t is_repeat(const string &line) {
     try {
       auto re = regex("^--- last message repeated ([0-9]+) time[s]? ---$");
       smatch matches;
@@ -109,8 +105,7 @@ public:
     } catch (const std::exception &e) { return 0; }
   }
 
-  LogRecord &_repeat_last_rec()
-  {
+  LogRecord &_repeat_last_rec() {
     LogRecord *prec = nullptr;
     try {
       prec = new LogRecord(*this->messages->global_end);
@@ -124,8 +119,7 @@ public:
     return *prec;
   }
 
-  LogRecord &add_after_rec(LogRecord *prec, const string &log_whole)
-  {
+  LogRecord &add_after_rec(LogRecord *prec, const string &log_whole) {
     if (prec == nullptr) {
       throw std::invalid_argument("Storage::add_after_rec() Pointer to "
           "LogRecord should not be null!");
@@ -214,8 +208,7 @@ public:
     return *new_rec;
   }
 
-  Storage &read_from_file(const string &filename)
-  {
+  Storage &read_from_file(const string &filename) {
     QFile file(filename.c_str());
     // get file size
     auto filesize = file.size();
@@ -239,18 +232,9 @@ public:
       while ((line = file.readLine().constData(),
               !line.empty())) {
         char_cnt += line.size();
-        progress.setValue(char_cnt);
-        //        if (progress.wasCanceled()) {
-        //          // clean current session
-        //          LogRecord *beg = this->messages->global_begin;
-        //          LogRecord *to_free = nullptr;
-        //          while (beg != nullptr) {
-        //            to_free = beg;
-        //            beg = beg->time_suc;
-        //            delete to_free;
-        //          }
-        //          exit(0);
-        //        }
+        if (char_cnt % 50 == 0) {
+          progress.setValue(char_cnt);
+        }
         try {
           msgbuf = LogMessage(line);
         } catch (const std::runtime_error &e) {
@@ -288,8 +272,7 @@ public:
     return *this;
   }
 
-  Storage &delete_rec(LogRecord *&prec)
-  {
+  Storage &delete_rec(LogRecord *&prec) {
     // find `prec`'s predecessor on all dimentions
     // - find on time axis
     LogRecord *time_pre = nullptr;
@@ -306,7 +289,7 @@ public:
     }
     // - find on message axis
     // TODO: Fails when message contains cr/lf
-    auto &msg_cell = (*this->messages)[prec->message];
+    auto &msg_cell = (*this->messages)[*prec->message];
     LogRecord *msg_pre = nullptr;
     if (msg_cell.entry == prec) { /* pass */ ; }
     else {
@@ -369,8 +352,7 @@ public:
   bool isEmpty() { return this->messages->global_begin == nullptr; }
 
   vector<_HashCell_LogMessage *> query_on_message(const string &in,
-                                                  const bool fuzzy=false)
-  {
+                                                  const bool fuzzy=false) {
     auto retvec = vector<_HashCell_LogMessage *>();
     if (fuzzy == true) {    // fuzzy search: only the sub-string is needed
                             // have to search the entire table!
@@ -406,8 +388,7 @@ public:
   }
 
   vector<_HashCell_string *> query_on_sender(const string &in,
-                                             const bool fuzzy=false)
-  {
+                                             const bool fuzzy=false) {
     auto retvec = vector<_HashCell_string *>();
     if (fuzzy == true) {    // fuzzy search: only the sub-string is needed
                             // have to search the entire table!
@@ -444,8 +425,7 @@ public:
 
   std::vector<LogRecord *> query(const std::string &content,
                                  const bool fuzzy=false,
-                                 const std::string &axis="message")
-  {
+                                 const std::string &axis="message") {
     auto ret = std::vector<LogRecord *>();
     if (this->isEmpty()) { return ret; }  // no query on empty storage
     /*** querying on time ***/
@@ -481,3 +461,4 @@ public:
 
 
 #endif
+

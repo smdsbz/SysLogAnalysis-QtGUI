@@ -251,7 +251,7 @@ public:
             throw e;
           }
           cursor_node = cursor_node->child;
-          ++(*cursor_node); // inc `occur`
+          ++(*cursor_node); // injc `occur`
           /* current_layer = cursor_node->child;   // next layer, still `nullptr` */
           continue; // do *ONE* at a time
         }
