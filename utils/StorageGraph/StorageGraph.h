@@ -96,6 +96,7 @@ public:
 
   size_t is_repeat(const string &line) {
     try {
+      // sorry, using apple's ver. of `syslog`
       auto re = regex("^--- last message repeated ([0-9]+) time[s]? ---$");
       smatch matches;
       regex_match(line, matches, re);
@@ -106,6 +107,7 @@ public:
   }
 
   LogRecord &_repeat_last_rec() {
+    // NOTE: Before calling this function, make sure storage is **NOT** empty!
     LogRecord *prec = nullptr;
     try {
       prec = new LogRecord(*this->messages->global_end);
@@ -346,6 +348,8 @@ public:
     // free `prec`
     delete prec;
     prec = nullptr;
+    // decrease occurance
+    msg_cell.occur -= 1;
     return *this;
   }
 
