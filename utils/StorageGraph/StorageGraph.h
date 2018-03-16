@@ -290,7 +290,6 @@ public:
       }
     }
     // - find on message axis
-    // TODO: Fails when message contains cr/lf
     auto &msg_cell = (*this->messages)[*prec->message];
     LogRecord *msg_pre = nullptr;
     if (msg_cell.entry == prec) { /* pass */ ; }
@@ -349,7 +348,7 @@ public:
     delete prec;
     prec = nullptr;
     // decrease occurance
-    msg_cell.occur -= 1;
+    msg_cell.count -= 1;
     return *this;
   }
 

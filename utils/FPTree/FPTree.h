@@ -79,6 +79,15 @@ public:
       return;
     }
 
+    _Header(_HashCell_LogMessage *p) {
+      if (p == nullptr) {
+        throw std::runtime_error("FPTree::_Header() Empty header!");
+      }
+      this->entity = p;
+      this->freq   = p->count;
+      return;
+    }
+
     _Header &operator= (const _Header &other) {
       this->entity = other.entity;
       this->freq   = other.freq;
@@ -143,23 +152,24 @@ public:
     throw std::overflow_error("FPTree::operator[LogMessage] Not found!");
   }
 
-  _Header &_add_header(_HashCell_LogMessage *p, size_t f) {
+  _Header &_add_header(_HashCell_LogMessage *pmcell) {
+    // NOTE: `count` check should be done externally already!
     // first header
     if (this->headers.empty()) {
-      this->headers.push_back(_Header(p, f));
-      return this->headers[0];
+      this->headers.push_back(_Header(pmcell));
+      return this->headers.front();
     }
     // not first - consider insertion place
     // insert to tail
-    if (f < this->headers.back().freq) {
-      this->headers.push_back(_Header(p, f));
+    if (pmcell->count < this->headers.back().freq) {
+      this->headers.push_back(_Header(pmcell));
       return this->headers.back();
     }
     // insert at first / middle
     for (size_t idx = 0, range = this->headers.size();
          idx != range; ++idx) {
-      if (f < this->headers[idx].freq) { continue; }
-      this->headers.insert(this->headers.cbegin() + idx, _Header(p, f));
+      if (pmcell->count < this->headers[idx].freq) { continue; }
+      this->headers.insert(this->headers.cbegin() + idx, _Header(pmcell));
       return this->headers[idx];
     }
     throw std::runtime_error("FPTree::_add_header() Cannot find insert position");
@@ -188,7 +198,7 @@ public:
         for (auto pcell = s.messages->table + idx;
              pcell; pcell = pcell->next) {
           if (pcell->count < valve_freq) { continue; }
-          this->_add_header(pcell, pcell->count);
+          this->_add_header(pcell);
         }   // for all isotopes
       } // if has content
     }   // for all cell in table
@@ -237,7 +247,7 @@ public:
           cursor_node = cursor_node->child;
           ++(*cursor_node); // injc `occur`
           /* current_layer = cursor_node->child;   // next layer, still `nullptr` */
-          continue; // do *ONE* at a time
+          continue; // HACK: Do *ONE* at a time, utilze the `for`-loop
         }
         // find ref in current layer
         cursor_node = current_layer->in_brothers(each.entity);
