@@ -9,11 +9,12 @@ AnalysisDisplayDialog::AnalysisDisplayDialog(MainWindow *rootWin, QWidget *paren
   this->layout()->setSizeConstraint(QLayout::SetNoConstraint);
   this->setSizeGripEnabled(true);
   this->mainWindow = rootWin;
+  this->ui->minOccur->setValue(this->min_occur);
   // init fp-tree and build analysis cache
   if (this->mainWindow->storage != nullptr) {
     this->analysis = new FPTree(this->mainWindow->storage);
     // TODO: Dialog to determine hyper-parameters
-    this->analysis->run(/*hp_min_freq=*/10, /*hp_max_delay=*/1);
+    this->analysis->run(/*hp_min_freq=*/10, /*hp_max_delay=*/5);
   } else { /* TODO: Error message and Close */ ; }
   // render displays
   _render_all();
@@ -41,7 +42,7 @@ AnalysisDisplayDialog::_render_layer_panel()
   // buffering model with data
   // --- nothing to show
   if (this->analysis->headers.size() == 0) {
-    layer_nodes->setItem(0, 2, new QStandardItem(QString("Nothing to show!")));
+    this->ui->layerLogCount->setText(QString("Nothing to show!"));
   } else if (this->analysis->nodes) {  // --- something to show
     size_t count = 0;
     FPTree::_Node *each = nullptr;
@@ -65,7 +66,7 @@ AnalysisDisplayDialog::_render_layer_panel()
             new QStandardItem(QString(each->entity->data.get_message().c_str())));
     }
     this->ui->layerLogCount->setText(QString("%1 log(s)").arg(QString().setNum(count)));
-  } else {  // --- there is headers, but no nodes??
+  } else {  // --- there are headers, but no nodes??
     // not possible
     /* pass */ ;
   }

@@ -40,7 +40,7 @@ private:
   MainWindow *mainWindow;
   FPTree *analysis = nullptr;
   std::vector<FPTree::_Node *>current_pattern;
-  size_t min_occur = 10;
+  size_t min_occur = 5;
 };
 
 #endif // ANALYSISDISPLAYDIALOG_H

@@ -120,7 +120,7 @@ LogDate::LogDate(const string &str) {
 }
 
 
-LogDate &
+LogDate
 LogDate::operator+(const size_t sec) {
   auto ret = *this;
   for (size_t remain = sec; remain != 0; --remain) {
@@ -154,7 +154,7 @@ LogDate::operator+(const size_t sec) {
       }
     }   // end of switch
   } // end of for
-  return *this;
+  return ret;
 }
 
 

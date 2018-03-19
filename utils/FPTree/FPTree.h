@@ -110,7 +110,7 @@ public:
 
   Storage         *storage = nullptr;
   vector<_Header>  headers;
-  _Node           *nodes = nullptr;
+  _Node           *nodes   = nullptr;
 
 public:
 
@@ -216,8 +216,8 @@ public:
         cout << "Space allocation failed!" << endl;
         throw e;
       }
+      ++(*this->nodes);
       auto prev_node = *(this->nodes);
-      ++prev_node;  // inc `occur`
       for (size_t idx = 1, range = pat.size();
            idx != range;
            ++idx, prev_node = *prev_node.child) {
@@ -227,11 +227,11 @@ public:
           cout << "Space allocation failed!" << endl;
           throw e;
         }
-        ++prev_node;    // inc `occur`
+        ++prev_node.child;  // inc `occur`
       }
       return *this;
     } else {    // not first pattern
-      _Node *current_layer = this->nodes;   // (first node in) first layer
+      _Node *current_layer = this->nodes;   // first node in top layer
                                             // promised not `nullptr`
       _Node *cursor_node = nullptr;
       for (auto &each : pat) {
@@ -252,7 +252,7 @@ public:
         // find ref in current layer
         cursor_node = current_layer->in_brothers(each.entity);
         if (cursor_node == nullptr) {   // node not in current layer yet
-          // append one to last in layer
+          // append new one in this layer
           cursor_node = current_layer->last_brother();
           try {
             cursor_node->brother = new _Node(each.entity);

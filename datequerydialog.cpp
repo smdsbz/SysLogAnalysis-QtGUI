@@ -29,7 +29,9 @@ void DateQueryDialog::on_buttonBox_accepted() {
     qDebug() << e.what();
   }
   this->setCursor(Qt::WaitCursor);
-  auto result = this->mainWindow->getStorage().query(str_tgtdate, false, "time");
+  auto result = this->mainWindow->getStorage().query(str_tgtdate,
+                                                     /*fuzzy=*/false,
+                                                     /*axis=*/"time");
   if (result.empty()) {
     QMessageBox toast_box;
     toast_box.setText("No result!");

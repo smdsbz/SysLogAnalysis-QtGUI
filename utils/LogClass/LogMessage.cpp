@@ -61,8 +61,8 @@ LogMessage::LogMessage(const string &str, const bool message_only) {
 
 
 LogMessage::LogMessage(const LogMessage &copy) {
-  this->host = copy.host;
-  this->sender = copy.sender;
+  this->host    = copy.host;
+  this->sender  = copy.sender;
   this->message = copy.message;
   return;
 }

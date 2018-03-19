@@ -140,7 +140,7 @@ public:
    * 函数功能：以当前时间为基准，生成向后偏移指定秒数的 LogDate 对象
    * 返回值：  偏移后的 LogDate 对象
    */
-  LogDate &operator+ (const size_t sec);
+  LogDate operator+ (const size_t sec);
 
   /* 函数名称：str
    * 函数参数：无
@@ -225,11 +225,10 @@ public:
 
   /* 函数名称：notempty、empty
    * 函数参数：无
-   * 函数功能：判断当前 LogMessage 对象是否为空
+   * 函数功能：判断当前 LogMessage 对象是否为空 / 非空
    * 返回值：  判断结果（bool）
    */
   inline bool notempty() { return !(this->host.empty()); }
-
   inline bool empty() { return !(this->notempty()); }
 
   /* 函数名称：append_msg
