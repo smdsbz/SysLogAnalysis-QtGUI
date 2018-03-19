@@ -20,7 +20,7 @@ LogRecord::LogRecord(const string &str, const bool whole) {
     throw std::runtime_error(string("LogRecord.cpp::LogRecord(str) failed ")
         + "to create LogRecord instance due to: " + e.what());
   }
-  message = nullptr; time_suc = nullptr; sender_suc = nullptr;
+  /* message = nullptr; time_suc = nullptr; sender_suc = nullptr; */
   return;
 }
 

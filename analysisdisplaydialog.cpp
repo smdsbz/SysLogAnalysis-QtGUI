@@ -160,6 +160,7 @@ void AnalysisDisplayDialog::on_inStackPattern_doubleClicked(const QModelIndex &i
 void AnalysisDisplayDialog::on_minOccur_valueChanged(int arg1)
 {
   this->min_occur = arg1;
+  if (this->analysis == nullptr) { return; }
   this->current_pattern.clear();
   _render_all();
 }

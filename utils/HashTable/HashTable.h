@@ -26,14 +26,15 @@ public:
 
 public:
 
-  inline MessageTable(size_t table_size = 5000) {
+  inline MessageTable(size_t table_size = 5000,
+                      size_t hash_range = 30) {
     if (table_size == 0) {
       throw std::invalid_argument("MessageTable::MessageTable(...)::table_size "
           "Provide an appropriate size to init table!");
     }
     this->space = table_size;
     this->table = new _HashCell_LogMessage[this->space];
-    this->hash  = HashFunc(30, this->space, 0);
+    this->hash  = HashFunc(hash_range, this->space, 0);
     this->global_begin = nullptr;
     this->global_end   = nullptr;
     return;

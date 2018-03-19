@@ -311,7 +311,7 @@ public:
       return this->pRec == other.pRec;
     }
     inline bool operator!=(const iterator &other) { return !(*this == other); }
-    /* 函数名称：operator*（解引用操作符）
+    /* 函数名称：operator*、operator->（解引用操作符）
      * 函数参数：无
      * 函数功能：返回迭代器指向的实例
      * 返回值：  迭代器指向的实例（LogRecord &）

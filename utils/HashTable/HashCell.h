@@ -83,11 +83,20 @@ public:
   }
 
   inline _HashCell_LogMessage &set_entry(LogRecord *rec) {
-    if (rec->get_message() != data.get_message()) {
+    if (rec->get_message() != this->data.get_message()) {
       throw std::runtime_error("_HashCell_LogMessage::set_entry() "
           "Setting `LogRecord` entry to an irrelevant pos!");
     }
-    entry = rec;
+    this->entry = rec;
+    return *this;
+  }
+
+  inline _HashCell_LogMessage &set_end(LogRecord *prec) {
+    if (prec->get_message() != this->data.get_message()) {
+      throw std::runtime_error("_HashCell_LogMessage::set_entry() "
+          "Setting `LogRecord` entry to an irrelevant pos!");
+    }
+    this->end = prec;
     return *this;
   }
 
