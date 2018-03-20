@@ -138,23 +138,25 @@ public:
     return *pcell;
   }
 
-  // TODO: Fails when containing cr/lf
-  // TODO: Figure out why this works in Qt-GUI
-  // _HashCell_LogMessage &operator[](const LogMessage *pmsg) {
-  //   auto pcell = this->table + hash(pmsg->get_message());
-  //   if (!pcell->occupied()) {
-  //     throw std::overflow_error(string("MessageTable::operator[LogMessage *] "
-  //         "No match found for: ") + pmsg->get_message());
-  //   }
-  //   while (pcell && !(&pcell->data == pmsg)) {
-  //     pcell = pcell->next;
-  //   }
-  //   if (pcell == nullptr) {
-  //     throw std::overflow_error(string("MessageTable::operator[LogMessage *] "
-  //         "No match found for: ") + pmsg->get_message());
-  //   }
-  //   return *pcell;
-  // }
+  /*
+  TODO: Fails when containing cr/lf
+  TODO: Figure out why this works in Qt-GUI
+  _HashCell_LogMessage &operator[](const LogMessage *pmsg) {
+    auto pcell = this->table + hash(pmsg->get_message());
+    if (!pcell->occupied()) {
+      throw std::overflow_error(string("MessageTable::operator[LogMessage *] "
+          "No match found for: ") + pmsg->get_message());
+    }
+    while (pcell && !(&pcell->data == pmsg)) {
+      pcell = pcell->next;
+    }
+    if (pcell == nullptr) {
+      throw std::overflow_error(string("MessageTable::operator[LogMessage *] "
+          "No match found for: ") + pmsg->get_message());
+    }
+    return *pcell;
+  }
+  */
 
   /*
   HACK: Current work-around for the problem stated above
