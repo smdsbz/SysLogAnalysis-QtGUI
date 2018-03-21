@@ -24,10 +24,10 @@ public:
 
   class _Node {
   public:
-    _HashCell_LogMessage *entity = nullptr;
-    size_t  occur  = 0;
-    _Node  *child  = nullptr;
-    _Node  *brother= nullptr;
+    _HashCell_LogMessage *entity = nullptr; // actual data
+    size_t  occur  = 0; // occurance till this node in current pattern
+    _Node  *child  = nullptr;   // next alone current pattern
+    _Node  *brother= nullptr;   // different pattern
     /* _Node  *next_occur = nullptr; */
 
   public:
@@ -64,8 +64,8 @@ public:
 
   class _Header {
   public:
-    _HashCell_LogMessage *entity = nullptr;
-    size_t  freq   = 0;
+    _HashCell_LogMessage *entity = nullptr; // actual data
+    size_t  freq   = 0; // frequncy count in all history
     /* _Node  *occur  = nullptr; */
 
   public:

@@ -31,7 +31,7 @@ using std::smatch; using std::ssub_match;
 
 class Storage {
 public:
-  MessageTable     *messages = nullptr;
+  MessageTable     *messages = nullptr; // HashTables for different query axes
   SenderTable      *senders  = nullptr;
 
 public:

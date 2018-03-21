@@ -16,11 +16,11 @@ using std::string;
 
 class _HashCell_LogMessage {
 public:
-  LogMessage    data;
-  LogRecord    *entry = nullptr;
-  LogRecord    *end   = nullptr;
-  _HashCell_LogMessage *next = nullptr;
-  size_t        count = 0;
+  LogMessage    data;   // store actual message content
+  LogRecord    *entry = nullptr;    // points to first rec of this message
+  LogRecord    *end   = nullptr;    // points to last rec of this message
+  _HashCell_LogMessage *next = nullptr; // next isotope
+  size_t        count = 0;  // frequent of this message
 
 public:
 
@@ -117,10 +117,10 @@ public:
 
 class _HashCell_string {
 public:
-  string      data;
-  LogRecord  *entry = nullptr;
-  LogRecord  *end   = nullptr;
-  _HashCell_string *next = nullptr;
+  string      data; // store actual string
+  LogRecord  *entry = nullptr;  // points to first rec of this sender
+  LogRecord  *end   = nullptr;  // points to last rec of this sender
+  _HashCell_string *next = nullptr; // next isotope
 
 public:
 

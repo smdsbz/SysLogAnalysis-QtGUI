@@ -17,12 +17,11 @@ using std::string;
 
 class MessageTable {
 public:
-  _HashCell_LogMessage *table = nullptr;
-  size_t    space = 5000;
-  HashFunc  hash  = HashFunc(30, 5000, 0);
-
-  LogRecord *global_begin = nullptr;
-  LogRecord *global_end   = nullptr;
+  _HashCell_LogMessage *table = nullptr;    // static space
+  size_t    space = 5000;   // size of static space
+  HashFunc  hash  = HashFunc(30, 5000, 0);  // proprietary string hash
+  LogRecord *global_begin = nullptr;    // points to first rec in history
+  LogRecord *global_end   = nullptr;    // points to last rec in history
 
 public:
 
@@ -210,9 +209,9 @@ public:
 
 class SenderTable {
 public:
-  _HashCell_string     *table = nullptr;
-  size_t    space = 200;
-  HashFunc  hash = HashFunc(10, 200, 0);
+  _HashCell_string     *table = nullptr;    // static space
+  size_t    space = 200;    // size of static space
+  HashFunc  hash = HashFunc(10, 200, 0);    // proprietary hash func
 
 public:
 

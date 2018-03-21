@@ -429,8 +429,8 @@ constexpr const size_t HASH_SPACE     = 5000;
 
 class HashFunc {
 public:
-  size_t hash_range = STRHASH_RANGE;
-  size_t pool_size  = HASH_SPACE;
+  size_t hash_range = STRHASH_RANGE;    // range of summing string ASCII vals
+  size_t pool_size  = HASH_SPACE;   // target space
   unsigned char selection = 0;  // (reserved) select with hash func to use
 
 public:
