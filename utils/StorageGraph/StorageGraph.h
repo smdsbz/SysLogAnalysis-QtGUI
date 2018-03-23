@@ -183,12 +183,18 @@ public:
       }
       // linking into axes
       if (msg_pre == nullptr) {     // if is first log of this message
+        if (msg_cell.entry) {   // adding beyond the first position
+          new_rec->msg_suc = msg_cell.entry;
+        }
         msg_cell.entry = new_rec;
       } else {  // link into message chain
         new_rec->msg_suc = msg_pre->msg_suc;
         msg_pre->msg_suc = new_rec;
       }
       if (sndr_pre == nullptr) {    // if is first log of this sender
+        if (sndr_cell.entry) {
+          new_rec->sender_suc = sndr_cell.entry;
+        }
         sndr_cell.entry = new_rec;
       } else {  // link into sender chain
         new_rec->sender_suc = sndr_pre->sender_suc;
@@ -234,9 +240,7 @@ public:
       while ((line = file.readLine().constData(),
               !line.empty())) {
         char_cnt += line.size();
-        if (char_cnt % 50 == 0) {
-          progress.setValue(char_cnt);
-        }
+        if (char_cnt % 50 == 0) { progress.setValue(char_cnt); }
         try {
           msgbuf = LogMessage(line);
         } catch (const std::runtime_error &e) {
@@ -284,10 +288,7 @@ public:
       while (time_pre && time_pre->time_suc != prec) {
         time_pre = time_pre->time_suc;
       }
-      if (time_pre == nullptr) {
-        throw std::runtime_error("Storage::delete_rec() Time predecessor not "
-            "found!");
-      }
+      if (time_pre == nullptr) { /* pass */ ; }
     }
     // - find on message axis
     auto &msg_cell = (*this->messages)[*prec->message];
@@ -298,10 +299,7 @@ public:
       while (msg_pre && msg_pre->msg_suc != prec) {
         msg_pre = msg_pre->msg_suc;
       }
-      if (msg_pre == nullptr) {
-        throw std::runtime_error("Storage::delete_rec() Message predecessor "
-            "not found!");
-      }
+      if (msg_pre == nullptr) { /* pass */ ; }
     }
     // - find on sender axis
     auto &sndr_cell = (*this->senders)[prec->get_sender()];
@@ -312,10 +310,7 @@ public:
       while (sndr_pre && sndr_pre->sender_suc != prec) {
         sndr_pre = sndr_pre->sender_suc;
       }
-      if (sndr_pre == nullptr) {
-        throw std::runtime_error("Storage::delete_rec() Sender predecessor "
-            "not found!");
-      }
+      if (sndr_pre == nullptr) { /* pass */ ; }
     }
     // re-chain
     // `prec` is first / not first
@@ -379,7 +374,8 @@ public:
       try {
         auto pcell = &((*(this->messages))[in]);
         for (; pcell != nullptr; pcell = pcell->next) {
-          if (pcell->_repr() == in) {
+          if (pcell->_repr() == in
+                && pcell->entry != nullptr) {
             retvec.push_back(pcell);
           }
         }   // for on cell chain
@@ -415,7 +411,8 @@ public:
       try {
         auto pcell = &((*(this->senders))[in]);
         for (; pcell != nullptr; pcell = pcell->next) {
-          if (pcell->_repr() == in) {
+          if (pcell->_repr() == in
+                && pcell->entry != nullptr) {
             retvec.push_back(pcell);
           }
         }   // for on cell chain
@@ -447,13 +444,21 @@ public:
     // NOTE: Only add *Cell.entry to ret vector, same with senders query
     if (axis == "message") {
       auto message_cells = query_on_message(content, fuzzy);
-      for (auto &each : message_cells) { ret.push_back(each->entry); }
+      for (auto &mcell : message_cells) {
+        for (auto prec = mcell->entry; prec; prec = prec->msg_suc) {
+          ret.push_back(prec);
+        }
+      }
       return ret;
     }
     /*** querying on sender ***/
     if (axis == "sender") {
       auto sender_cells = query_on_sender(content, fuzzy);
-      for (auto &each : sender_cells) { ret.push_back(each->entry); }
+      for (auto &scell : sender_cells) {
+        for (auto prec = scell->entry; prec; prec = prec->sender_suc) {
+          ret.push_back(prec);
+        }
+      }
       return ret;
     }
     throw std::runtime_error("StorageGraph::query() Unrecognized query "

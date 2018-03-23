@@ -42,6 +42,7 @@ Ui::MainWindow *MainWindow::getUi() { return this->ui; }
 std::vector<LogRecord *> &MainWindow::getQueryResult() { return this->query_result; }
 MainWindow &MainWindow::setQueryResult(std::vector<LogRecord *> new_result)
 {
+  this->query_result.clear();
   this->query_result = new_result;
   return *this;
 }
@@ -117,6 +118,7 @@ void MainWindow::_render_recordDisplayArea(vector<LogRecord *> data_to_display)
   this->ui->statusBar->showMessage(
         QString("%1 log(s) in total.").arg(total_count));
   this->setCursor(Qt::ArrowCursor);
+  this->cursor = nullptr;
   return;
 }
 
@@ -194,6 +196,7 @@ void MainWindow::on_actionQuery_via_time_triggered()
 
 void MainWindow::on_actionShow_all_logs_in_buffer_triggered()
 {
+  this->query_result.clear();
   _render_recordDisplayArea();
 }
 
